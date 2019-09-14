@@ -5,13 +5,12 @@ const passport = require("passport");
 
 
 router.get("/login", (req, res, next) => {
-  res.render("auth/login");
+  res.render("auth/login", {error: req.query.error});
 });
 
 router.post("/login", passport.authenticate("local", {
   successRedirect: "/",
-  failureRedirect: "/login",
-  failureFlash: true,
+  failureRedirect: "/auth/login?error=username or password do not match",
   passReqToCallback: true
 }));
 
@@ -29,6 +28,7 @@ router.get("/signup", (req, res, next) => {
 router.post("/signup", (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
+  const fullname = req.body.fullName;
 
   if (username === "" || password === "") {
     res.render("auth/signup", { message: "Indicate username and password" });
@@ -46,6 +46,7 @@ router.post("/signup", (req, res, next) => {
     const hashPass = bcrypt.hashSync(password, salt);
 
     const newUser = new User({
+      fullname,
       username,
       password: hashPass
     });
